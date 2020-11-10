@@ -1,0 +1,41 @@
+---
+    - hosts: privacy_project
+      become: yes
+      gather_facts: no
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+
+      pre_tasks:
+        - name: Bootstrap
+          raw: '{{ item }}'
+          with_items:
+            - yes '' | add-apt-repository ppa:deadsnakes/ppa
+            - apt update
+            - yes '' | apt install python
+
+      tasks:
+        - name: Install Python3.7 and Pip3
+          apt:
+            name: [
+              'python3.7',
+              'python3-pip',
+              'python3-apt'
+            ]
+            state: latest
+            force: yes
+            update_cache: yes
+
+        - name: Change Python and Pip alias
+          shell: '{{ item }}'
+          with_items:
+            - update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+            - update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
+        - name: Install Pipenv
+          apt:
+            name: [
+              'pipenv'
+            ]
+            state: latest
+            force: yes
+            update_cache: yes
